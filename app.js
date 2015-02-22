@@ -13,12 +13,12 @@ var express = require('express'),
 
 
 // *** config file *** //
-var config = require('./config/_config');
+var config = require('./server/_config');
 
 
 // *** routes *** //
-var mainRoutes = require('./routes/index');
-var userRoutes = require('./routes/users');
+var mainRoutes = require('./server/routes/index');
+var userRoutes = require('./server/routes/users');
 
 
 // *** express instance *** //
@@ -26,7 +26,7 @@ var app = express();
 
 
 // *** view engine *** ///
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, './client', 'views'));
 app.set('view engine', 'ejs');
 
 
@@ -38,25 +38,25 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(flash());
 app.use(session({
-  secret: 'my precious',  // change secret key, move to config
+  secret: config.secretKey,
   resave: false,
   saveUninitialized: true
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, './client', 'public')));
 
 
 // *** passport *** //
 
-mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/hackathon'); // change URI, move to config
-var User = require('./models/users.js');
+mongoose.connect(config.mongoURI);
+var User = require('./server/models/users.js');
 
 // passport github strategy
 passport.use(new GitHubStrategy({
-  clientID: config.github_client_id,
-  clientSecret: config.github_client_secret,
-  callbackURL: config.github_callback_url
+  clientID: config.githubClientID,
+  clientSecret: config.githubClientSecret,
+  callbackURL: config.githubCallbackURL
 },
 function(accessToken, refreshToken, profile, done) {
   User.findOne({ oauthID: profile.id }, function(err, user) {
