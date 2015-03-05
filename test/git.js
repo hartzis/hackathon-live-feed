@@ -18,12 +18,12 @@ describe("routes/users.js", function() {
     done();
   });
 
-  it ('GET "/" should 200', function(done) {
+  it ('GET "/git/github" should redirect if user is not logged in', function(done) {
     request(app)
-      .get('/')
+      .get('/git/github')
       .expect(200)
       .end(function (err, res) {
-        res.text.should.containEql('Login with Github');
+        res.header.location.should.eql('/');
       });
       done();
   });
